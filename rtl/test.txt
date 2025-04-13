@@ -1,0 +1,10 @@
+foo #() foo_inst(.a_i(), .b_i(), .y_o());
+foo #() foo_inst (.a_i(), .b_i(), .y_o());
+foo foo_inst(.a_i(), .b_i(), .y_o());
+foo #() foo_inst_2(.a_i(), .b_i(), .y_o());
+foo foo_inst (.a_i(), .b_i(), .y_o());
+
+foo foo_inst (.a()
+              .b()
+              .y()
+);
