@@ -11,23 +11,32 @@ regularity_dict = {}
 def regularity_extraction(file_i):
     parsed_set = []
     line_num = 0;
+    line_inter = ""
     with open(file_i, "r") as file:
         for line in file:
+            line_inter += line.strip() + " "
             line_num = line_num + 1
-            # print(line.rstrip())
-            parsed_set = token_parse(str(line), 0)
-            if (parsed_set[0] in regularity_dict):
-                regularity_dict[parsed_set[0]].append(line_num)
+            if (line_inter.strip() == ""):
+                continue
+            elif line_inter[-2] == ";":
+                parsed_set = token_parse(line_inter)
+                if (parsed_set[0] in regularity_dict):
+                    regularity_dict[parsed_set[0]].append(line_num)
+                else:
+                    regularity_dict[parsed_set[0]] = [line_num]
+                line_inter = ""
             else:
-                regularity_dict[parsed_set[0]] = [line_num]
+                continue
+
     
     print(regularity_dict)
 
 
 # Keeps track of everything: Instance, Parameters, Instance Name, Content, and Line Count
-def token_parse(str_i, line_num_i): # Operates assuming no comments
+def token_parse(str_i): # Operates assuming no comments
     token_dict = []
     str_i = str_i.rstrip()
+    print(str_i)
     if (str_i[-2::] == ");"):
         if (str_i.find("#") != -1): # Parameter Checking
             #Instance
