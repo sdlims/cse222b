@@ -1,9 +1,18 @@
 foo #() foo_inst(.a_i(), .b_i(), .y_o());
 foo #() foo_inst (.a_i(), .b_i(), .y_o());
 foo foo_inst(.a_i(), .b_i(), .y_o());
+foo foo_inst(.a_i(), .b_i(), .y_o());
 foo #() foo_inst_2(.a_i(), .b_i(), .y_o());
 foo foo_inst (.a_i(), .b_i(), .y_o());
+
+wire [3:0] hi_w;
+
 foo foo_inst (.a(),
+              .b(),
+              .y()
+);
+
+fool fool_inst (.ai(),
               .b(),
               .y()
 );
