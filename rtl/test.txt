@@ -16,3 +16,8 @@ fool fool_inst (.ai(),
               .b(),
               .y()
 );
+
+bee beeb (.x(), .z(), .q())
+
+aaaa
+aaaa

@@ -1,6 +1,8 @@
 import zlib
 import binascii
 
+test_path = "/home/sdli/regularity_extraction/rtl/test.txt"
+
 regularity_dict = {}
 block_size = 1
 
@@ -31,7 +33,7 @@ block_size = 1
 #             else:
 #                 continue
 
-def regularity_extraction(file_i, A, B): # Assuming 0 as first line
+def singular_regularity_extraction(file_i, A, B): # Assuming 0 as first line
     fp = open(file_i)
     lineA = ""
     lineB = ""
@@ -60,11 +62,48 @@ def regularity_extraction(file_i, A, B): # Assuming 0 as first line
     cmprA = zlib.compress(lineA.encode('utf-8'), 2)
     cmprB = zlib.compress(lineB.encode('utf-8'), 2)
 
-    cmprAB = zlib.compress(lineA.encode('utf-8') + lineB.encode('utf-8'), 2)
+    # print("cmprA: ", zlib.decompress(cmprA), "\n")
+    # print("cmprB: ", zlib.decompress(cmprB), "\n")
 
-    return(len(cmprAB) / (len(cmprA) + len(cmprB)))
+    lineAB = lineA + lineB
 
+    cmprAB = zlib.compress(lineAB.encode('utf-8'), 2)
 
+    # print("cmprAB: ", zlib.decompress(cmprAB))
+
+    # print("LenA: ", len(cmprA), "LenB: ", len(cmprB), "LenAB: ", len(cmprAB))
+
+    return ((len(cmprA) + len(cmprB)) / len(cmprAB))
+
+def block_regularity_extraction(file_i, A, B):
+    fp = open(file_i)
+    lineA = ""
+    lineB = ""
+    A_busy = 0
+    B_busy = 0
+
+    if (A != B):
+        for i, line in enumerate(fp):
+            if (i >= A) and (i <= (A + block_size)) or (A_busy):
+                lineA += line.strip() + " "
+                if (i >= (A + block_size) and (lineA[-2] != ";")):
+                    A_busy = 1
+                    continue
+                elif (lineA[-2] == ";"):
+                    A_busy = 0
+            elif (i >= B) and (i <= (B + block_size)) or (B_busy):
+                lineB += line.strip() + " "
+                if (i >= (B + block_size) and (lineB[-2] != ";")):
+                    B_busy = 1
+                    continue
+                elif (lineB[-2] == ";"):
+                    B_busy = 0
+        print(lineA, "\n")
+
+        print(lineB, "\n")
+
+    else:
+        print("F\n")
 
 # Keeps track of everything: Instance, Instance Name, Content, and Line Count
 def token_parse(str_i): # Operates assuming no comments
@@ -89,17 +128,20 @@ def token_parse(str_i): # Operates assuming no comments
 
 def main():
     # Identical
-    print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 2, 3))
+    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 2, 3))
     
-    #Complete Opposites
-    print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 8))
+    # #Complete Opposites
+    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 19))
     
-    #Somewhat Similar
-    print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 5))
+    # #Somewhat Similar
+    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 5))
     
-    #Somewhat Similar Module Names, but NOT Regular
-    print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 14))
-    # print(regularity_dict)
+    # #Somewhat Similar Module Names, but NOT Regular
+    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 14))
+    
+    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 21, 22))
+
+    block_regularity_extraction(test_path, 2, 4)
 
 if __name__ == "__main__":
     main()
