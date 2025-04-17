@@ -1,7 +1,7 @@
 import zlib
 import binascii
 
-test_path = "/home/sdli/regularity_extraction/rtl/test.txt"
+in_f = "/home/sdli/regularity_extraction/rtl/test.txt"
 out_f = "/home/sdli/regularity_extraction/rtl/AB_compress.txt"
 
 prep_data = {}
@@ -48,22 +48,7 @@ def block_regularity_extraction(A_s, A_e, B_s, B_e):
 
 
 def main():
-    # Identical
-    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 2, 3))
-    
-    # #Complete Opposites
-    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 19))
-    
-    # #Somewhat Similar
-    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 5))
-    
-    # #Somewhat Similar Module Names, but NOT Regular
-    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 1, 14))
-    
-    # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 21, 22))
-
-    # block_regularity_extraction(test_path, 2, 4, 5, 7)
-    preprocess_data(test_path)
+    preprocess_data(in_f)
     with open(out_f, "w") as file:
         for i in range(line_cnt-2):
             for j in range(line_cnt-3):
