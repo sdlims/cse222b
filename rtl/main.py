@@ -2,129 +2,50 @@ import zlib
 import binascii
 
 test_path = "/home/sdli/regularity_extraction/rtl/test.txt"
+out_f = "/home/sdli/regularity_extraction/rtl/AB_compress.txt"
 
-regularity_dict = {}
-block_size = 1
+prep_data = {}
 
-# # Obtain Instances from Netlist, then Generate Regularity
-# def regularity_extraction(file_i):
-#     line_num = 0
-#     line_inter = ""
-#     stall = 0
-#     with open(file_i, "r") as file:
-#         for line in file:
-#             line_inter += line.strip() + " "
-#             if ((line_inter.find(";") == -1) and (not line.isspace())):
-#                 stall += 1
-#             line_num = line_num + 1
-#             if (line_inter.strip() == ""):
-#                 continue
-#             elif ((line_inter[-2] == ";")):
-#                 parsed_set = token_parse(line_inter)
-#                 # print(parsed_set)
-#                 if (parsed_set[0] in regularity_dict):
-#                     # print(line_num, stall)
-#                     # print(line_inter)
-#                     regularity_dict[parsed_set[0]].append(line_num - stall)
-#                 else:
-#                     regularity_dict[parsed_set[0]] = [line_num - stall]
-#                 line_inter = ""
-#                 stall = 0
-#             else:
-#                 continue
+def preprocess_data(file_i):
+    global line_cnt
+    line_cnt = 0
+    with open(file_i, "r") as file:
+        for line in file:
+            prep_data[line_cnt] = line
+            line_cnt += 1
+    
+    # print(prep_data)
 
-def singular_regularity_extraction(file_i, A, B): # Assuming 0 as first line
-    fp = open(file_i)
+
+def block_regularity_extraction(A_s, A_e, B_s, B_e):
     lineA = ""
     lineB = ""
-    A_busy = 0
-    B_busy = 0
-    if (A != B):
-        for i, line in enumerate(fp):
-            if (i == A) or (A_busy):
-                lineA += line.strip() + " "
-                if (lineA.find(";") != -1):
-                    A_busy = 0
-                    lineA = lineA.strip()
-                    # print(lineA)
-                else:
-                    A_busy = 1
-                    continue
-            elif (i == B) or (B_busy):
-                lineB += line.strip() + " "
-                if (lineB.find(";") != -1):
-                    B_busy = 0
-                    lineB = lineB.strip()
-                    # print(lineB)
-                else:
-                    B_busy = 1
-                    continue
-    cmprA = zlib.compress(lineA.encode('utf-8'), 2)
-    cmprB = zlib.compress(lineB.encode('utf-8'), 2)
-
-    # print("cmprA: ", zlib.decompress(cmprA), "\n")
-    # print("cmprB: ", zlib.decompress(cmprB), "\n")
+    busy = 0
+    while (A_s <= A_e) or (busy):
+        lineA += prep_data[A_s].strip()
+        if (A_s >= A_e) and (lineA[-1] != ";"):
+            busy = 1
+        else:
+            busy = 0
+        A_s += 1
+    
+    
+    while (B_s <= B_e) or (busy): 
+        lineB += prep_data[B_s].strip()
+        if (B_s >= B_e) and (lineB[-1] != ";"):
+            busy = 1
+        else:
+            busy = 0
+        B_s += 1
+    
+    cmprA = zlib.compress(lineA.encode())
+    cmprB = zlib.compress(lineB.encode())
 
     lineAB = lineA + lineB
+    cmprAB = zlib.compress(lineAB.encode())
 
-    cmprAB = zlib.compress(lineAB.encode('utf-8'), 2)
+    return(len(cmprAB)/(len(cmprA) + len(cmprB)))
 
-    # print("cmprAB: ", zlib.decompress(cmprAB))
-
-    # print("LenA: ", len(cmprA), "LenB: ", len(cmprB), "LenAB: ", len(cmprAB))
-
-    return ((len(cmprA) + len(cmprB)) / len(cmprAB))
-
-def block_regularity_extraction(file_i, A, B):
-    fp = open(file_i)
-    lineA = ""
-    lineB = ""
-    A_busy = 0
-    B_busy = 0
-
-    if (A != B):
-        for i, line in enumerate(fp):
-            if (i >= A) and (i <= (A + block_size)) or (A_busy):
-                lineA += line.strip() + " "
-                if (i >= (A + block_size) and (lineA[-2] != ";")):
-                    A_busy = 1
-                    continue
-                elif (lineA[-2] == ";"):
-                    A_busy = 0
-            elif (i >= B) and (i <= (B + block_size)) or (B_busy):
-                lineB += line.strip() + " "
-                if (i >= (B + block_size) and (lineB[-2] != ";")):
-                    B_busy = 1
-                    continue
-                elif (lineB[-2] == ";"):
-                    B_busy = 0
-        print(lineA, "\n")
-
-        print(lineB, "\n")
-
-    else:
-        print("F\n")
-
-# Keeps track of everything: Instance, Instance Name, Content, and Line Count
-def token_parse(str_i): # Operates assuming no comments
-    token_dict = []
-    str_i = str_i.strip()
-    if (str_i.find(".") == -1):
-        token_dict.append("N/A") # Not a Token
-    else:
-        if ((str_i[-2::] == ");")):
-            #Instance
-            first_whitespace = str_i.index(" ")
-            token_dict.append(str_i[0:first_whitespace].strip())
-
-            open_paran = str_i.index("(")
-
-            #Instance Name
-            token_dict.append(str_i[first_whitespace:open_paran].strip())
-
-            #Content
-            token_dict.append(str_i[open_paran:-1].strip())
-    return token_dict
 
 def main():
     # Identical
@@ -141,7 +62,16 @@ def main():
     
     # print(regularity_extraction("/home/sdli/regularity_extraction/rtl/test.txt", 21, 22))
 
-    block_regularity_extraction(test_path, 2, 4)
+    # block_regularity_extraction(test_path, 2, 4, 5, 7)
+    preprocess_data(test_path)
+    with open(out_f, "w") as file:
+        for i in range(line_cnt-2):
+            for j in range(line_cnt-3):
+                if (j == 0):
+                    continue
+                regularity = (block_regularity_extraction(i, i+1, j, j+1))
+                file.write("Comparison of " + prep_data[i].strip() + "  and  " + prep_data[j].strip() + ":  " + str(regularity) + "\n" + "\n")
+
 
 if __name__ == "__main__":
     main()
