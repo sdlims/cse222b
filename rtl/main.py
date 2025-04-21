@@ -105,19 +105,26 @@ def main():
     input_file = sys.argv[1]
     output_file = sys.argv[2]
 
+    comparisons = []
     preprocess_data(input_file)
+
+    for i in range(10):
+        for j in range(10):
+            if (i == j):
+                pass
+            else:
+                # Eventually these will be a list of indices, not just single instances
+                A = [i]
+                B = [j]
+                regularity = regularity_extraction(A, B)
+                comparisons.append((regularity,A,B))
+
+    sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
+
     with open(output_file, "w") as file:
         for i in range(10):
-            for j in range(10):
-                if (i == j):
-                    pass
-                else:
-                    # Eventually these will be a list of indices, not just single instances
-                    A = [i]
-                    B = [j]
-                    regularity = regularity_extraction(A, B)
-                    if (regularity <= 0.7): # Identical features are usually between this range, but may need to adjust later
-                        file.write("Comparison of :\n" + get_subckt(A) + "and  \n" + get_subckt(B) + str(regularity) + "\n\n" )
+            regularity,A,B = sorted_comparisons[i]
+            file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
 
     # pprint.pprint(compression_result)   
 
