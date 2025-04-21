@@ -1,10 +1,12 @@
 import zlib
 import binascii
+import pprint
 
 in_f = "/home/sdli/regularity_extraction/rtl/test.txt"
 out_f = "/home/sdli/regularity_extraction/rtl/AB_compress.txt"
 
 prep_data = {}
+compression_result = {}
 
 def preprocess_data(file_i):
     global line_cnt
@@ -23,20 +25,26 @@ def block_regularity_extraction(A_s, A_e, B_s, B_e):
     busy = 0
     while (A_s <= A_e) or (busy):
         lineA += prep_data[A_s].strip()
-        if (A_s >= A_e) and (lineA[-1] != ";"):
+        if (A_s >= A_e) and (not lineA.endswith(";")):
             busy = 1
-        else:
+        elif (lineA.endswith(";")):
             busy = 0
-        A_s += 1
+        if (A_s == line_cnt - 1):
+            break
+        else:
+            A_s += 1
     
     
     while (B_s <= B_e) or (busy): 
         lineB += prep_data[B_s].strip()
-        if (B_s >= B_e) and (lineB[-1] != ";"):
+        if (B_s >= B_e) and (not lineB.endswith(";")):
             busy = 1
-        else:
+        elif (lineB.endswith(";")):
             busy = 0
-        B_s += 1
+        if (B_s == line_cnt - 1):
+            break
+        else:
+            B_s += 1
     
     cmprA = zlib.compress(lineA.encode())
     cmprB = zlib.compress(lineB.encode())
@@ -44,19 +52,25 @@ def block_regularity_extraction(A_s, A_e, B_s, B_e):
     lineAB = lineA + lineB
     cmprAB = zlib.compress(lineAB.encode())
 
-    return(len(cmprAB)/(len(cmprA) + len(cmprB)))
+    return(len(cmprAB)/(len(cmprA) + len(cmprB)), lineA, lineB)
 
 
 def main():
     preprocess_data(in_f)
-    with open(out_f, "w") as file:
-        for i in range(line_cnt-2):
-            for j in range(line_cnt-3):
-                if (j == 0):
-                    continue
-                regularity = (block_regularity_extraction(i, i+1, j, j+1))
-                file.write("Comparison of " + prep_data[i].strip() + "  and  " + prep_data[j].strip() + ":  " + str(regularity) + "\n" + "\n")
+    # print(prep_data)
+    # # print(line_cnt)
+    # print(range(line_cnt - 1))
+    for i in range(line_cnt - 1):
+        for j in range(line_cnt - 1):
+            if (i == j):
+                pass
+            else:
+                regularity, outA, outB = (block_regularity_extraction(i, i, j, j))
+                if (regularity <= 0.7): # Identical features are usually between this range, but may need to adjust later
+                    if (outA != ");") and (outB != ");") and (outA.strip() != "") and (outB.strip() != ""):
+                        compression_result[str(i+1) + ", " + str(i+1) + ", " + str(j+1) + ", " + str(j+1)] = regularity
 
+    pprint.pprint(compression_result)   
 
 if __name__ == "__main__":
     main()
