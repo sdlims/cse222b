@@ -7,9 +7,6 @@ prep_data = []
 compression_result = {}
 
 def preprocess_data(file_i):
-    global line_cnt
-    line_cnt = 0
-    
     init_data = []
     init_data.append("")
     with open(file_i, "r") as file:
@@ -61,70 +58,84 @@ def regularity_extraction(A, B):
 
     return len(cmprAB)/(len(cmprA) + len(cmprB))
 
-def block_regularity_extraction(A_s, A_e, B_s, B_e):
+
+def indice_regularity_extraction(A, B): #A, B are lists with index pairs [start1, end1, start2, end2, ... ] Indexes prep_data which has instances
     lineA = ""
     lineB = ""
-    busy = 0
-    while (A_s <= A_e) or (busy):
-        lineA += prep_data[A_s].strip()
-        if (A_s >= A_e) and (not lineA.endswith(";")):
-            busy = 1
-        elif (lineA.endswith(";")):
-            busy = 0
-        if (A_s == line_cnt - 1):
-            break
-        else:
-            A_s += 1
+
+    a_i = 0
+    a_j = 0
+    while(a_i != len(A)):
+        a_j = A[a_i]
+
+        while(a_j != (A[a_i + 1] + 1)):
+            lineA += prep_data[a_j - 1] + "\n"
+            a_j += 1
+        a_i += 2
     
+    print("Final lineA: \n", lineA)
+
+    b_i = 0
+    b_j = 0
+    while(b_i != len(B)):
+        b_j = B[b_i]
+        while(b_j != (B[b_i + 1] + 1)):
+            lineB += prep_data[b_j - 1] + "\n"
+            b_j += 1
+        b_i += 2
     
-    while (B_s <= B_e) or (busy): 
-        lineB += prep_data[B_s].strip()
-        if (B_s >= B_e) and (not lineB.endswith(";")):
-            busy = 1
-        elif (lineB.endswith(";")):
-            busy = 0
-        if (B_s == line_cnt - 1):
-            break
-        else:
-            B_s += 1
-    
+    print("\nFinal lineB: \n", lineB)
     cmprA = zlib.compress(lineA.encode())
     cmprB = zlib.compress(lineB.encode())
 
     lineAB = lineA + lineB
     cmprAB = zlib.compress(lineAB.encode())
 
-    return(len(cmprAB)/(len(cmprA) + len(cmprB)), lineA, lineB)
+    return len(cmprAB)/(len(cmprA) + len(cmprB))
+
+    
 
 
 def main():
-    if (len(sys.argv) != 3):
-        print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
-        exit(1)
-
     input_file = sys.argv[1]
     output_file = sys.argv[2]
 
     comparisons = []
     preprocess_data(input_file)
+    regularity = indice_regularity_extraction([1, 2, 3, 5], [7, 9])
 
-    for i in range(10):
-        for j in range(10):
-            if (i == j):
-                pass
-            else:
-                # Eventually these will be a list of indices, not just single instances
-                A = [i]
-                B = [j]
-                regularity = regularity_extraction(A, B)
-                comparisons.append((regularity,A,B))
+    comparisons.append((regularity,[1, 2, 3, 5], [7, 9]))
 
-    sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
+    print(comparisons)
 
-    with open(output_file, "w") as file:
-        for i in range(10):
-            regularity,A,B = sorted_comparisons[i]
-            file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
+
+    # if (len(sys.argv) != 3):
+    #     print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
+    #     exit(1)
+
+    # input_file = sys.argv[1]
+    # output_file = sys.argv[2]
+
+    # comparisons = []
+    # preprocess_data(input_file)
+
+    # for i in range(9):
+    #     for j in range(9):
+    #         if (i == j):
+    #             pass
+    #         else:
+    #             # Eventually these will be a list of indices, not just single instances
+    #             A = [i]
+    #             B = [j]
+    #             regularity = regularity_extraction(A, B)
+    #             comparisons.append((regularity,A,B))
+
+    # sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
+
+    # with open(output_file, "w") as file:
+    #     for i in range(10):
+    #         regularity,A,B = sorted_comparisons[i]
+    #         file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
 
     # pprint.pprint(compression_result)   
 
