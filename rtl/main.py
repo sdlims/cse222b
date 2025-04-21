@@ -3,7 +3,8 @@ import binascii
 import pprint
 
 in_f = "/home/sdli/regularity_extraction/rtl/test.txt"
-out_f = "/home/sdli/regularity_extraction/rtl/AB_compress.txt"
+reg_f = "/home/sdli/regularity_extraction/regularity/aes.gate.v"
+out_f = "/home/sdli/regularity_extraction/rtl/test_o.txt"
 
 prep_data = {}
 compression_result = {}
@@ -56,21 +57,21 @@ def block_regularity_extraction(A_s, A_e, B_s, B_e):
 
 
 def main():
-    preprocess_data(in_f)
-    # print(prep_data)
-    # # print(line_cnt)
-    # print(range(line_cnt - 1))
-    for i in range(line_cnt - 1):
-        for j in range(line_cnt - 1):
-            if (i == j):
-                pass
-            else:
-                regularity, outA, outB = (block_regularity_extraction(i, i, j, j))
-                if (regularity <= 0.7): # Identical features are usually between this range, but may need to adjust later
-                    if (outA != ");") and (outB != ");") and (outA.strip() != "") and (outB.strip() != ""):
-                        compression_result[str(i+1) + ", " + str(i+1) + ", " + str(j+1) + ", " + str(j+1)] = regularity
+    # preprocess_data(in_f)
+    preprocess_data(reg_f)
+    with open(out_f, "w") as file:
+        for i in range(17225, 17725):
+            for j in range(17225, 17725):
+                if (i == j):
+                    pass
+                else:
+                    regularity, outA, outB = (block_regularity_extraction(i, i, j, j))
+                    if (regularity <= 0.7): # Identical features are usually between this range, but may need to adjust later
+                        if (outA != ");") and (outB != ");") and (outA.strip() != "") and (outB.strip() != ""):
+                            compression_result[str(i+1) + ", " + str(i+1) + ", " + str(j+1) + ", " + str(j+1)] = regularity
+                            file.write("Comparison of " + outA + "  and  " + outB + ":  " + str(regularity) + "\n" + "\n")
 
-    pprint.pprint(compression_result)   
+    # pprint.pprint(compression_result)   
 
 if __name__ == "__main__":
     main()
