@@ -45,7 +45,7 @@ def preprocess_data(file_i):
 def get_subckt(indices):
     lineA = ""
     for i in indices:
-        lineA += prep_data[i]
+        lineA += prep_data[i]+"\n"
     return lineA
 
 
@@ -117,7 +117,7 @@ def main():
                     B = [j]
                     regularity = regularity_extraction(A, B)
                     if (regularity <= 0.7): # Identical features are usually between this range, but may need to adjust later
-                        file.write("Comparison of :\n" + get_subckt(A) + "\n  and  \n" + get_subckt(B) + "\n" + str(regularity) + "\n\n" )
+                        file.write("Comparison of :\n" + get_subckt(A) + "and  \n" + get_subckt(B) + str(regularity) + "\n\n" )
 
     # pprint.pprint(compression_result)   
 
