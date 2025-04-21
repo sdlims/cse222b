@@ -1,9 +1,9 @@
 import zlib
 import binascii
 import pprint
+import sys
 
 in_f = "/home/sdli/regularity_extraction/rtl/test.txt"
-reg_f = "/home/sdli/regularity_extraction/regularity/aes.gate.v"
 out_f = "/home/sdli/regularity_extraction/rtl/test_o.txt"
 
 prep_data = {}
@@ -57,9 +57,15 @@ def block_regularity_extraction(A_s, A_e, B_s, B_e):
 
 
 def main():
-    # preprocess_data(in_f)
-    preprocess_data(reg_f)
-    with open(out_f, "w") as file:
+    if (len(sys.argv) != 3):
+        print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
+        exit(1)
+
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+
+    preprocess_data(input_file)
+    with open(output_file, "w") as file:
         for i in range(17225, 17725):
             for j in range(17225, 17725):
                 if (i == j):
