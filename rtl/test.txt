@@ -1,8 +1,16 @@
-foo #() foo_inst(.a_i(), .b_i(), .y_o());
-foo #() foo_inst (.a_i(), .b_i(), .y_o());
+ input clk;
+ output done;
+ input ld;
+ input rst;
+ input [127:0] key;
+ input [127:0] text_in;
+ output [127:0] text_out;
+
+foo foo_inst(.a_i(a), .b_i(bb), .y_o(yyy));
+foo foo_inst (.a_i(), .b_i(), .y_o());
 foo foo_inst(.a_i(_0_), .b_i(_1_), .y_o(_2_));
 foo foo_inst(.a_i(_3_), .b_i(_4_), .y_o(_5_));
-foo #() foo_inst_2(.a_i(), .b_i(), .y_o());
+foo foo_inst_2(.a_i(), .b_i(), .y_o());
 foo foop_inst (.a_i(), .b_i(), .y_o());
 
 wire [3:0] hi_w;
