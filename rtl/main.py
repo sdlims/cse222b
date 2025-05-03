@@ -17,6 +17,8 @@ def preprocess_data(file_i):
                 init_data.append("")
     
     for line in init_data:
+        if line.startswith("//"):
+            continue
         if line.startswith("module"):
             continue
         if line.startswith("endmodule"):
@@ -97,47 +99,40 @@ def indice_regularity_extraction(A, B): #A, B are lists with index pairs [start1
 
 
 def main():
+
+    if (len(sys.argv) != 3):
+        print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
+        exit(1)
     input_file = sys.argv[1]
     output_file = sys.argv[2]
 
     comparisons = []
     preprocess_data(input_file)
-    regularity = indice_regularity_extraction([1, 2, 3, 5], [7, 9])
+    print(prep_data)
+    #regularity = indice_regularity_extraction([1, 2, 3, 5], [7, 9])
 
-    comparisons.append((regularity,[1, 2, 3, 5], [7, 9]))
+    #comparisons.append((regularity,[1, 2, 3, 5], [7, 9]))
 
-    print(comparisons)
+    #print(comparisons)
 
+    for i in range(len(prep_data)):
+        for j in range(len(prep_data)):
+            if i==j: 
+                continue
+            # Eventually these will be a list of indices, not just single instances
+            A = [i]
+            B = [j]
+            regularity = regularity_extraction(A, B)
+            comparisons.append((regularity,A,B))
 
-    # if (len(sys.argv) != 3):
-    #     print(f"Usage: python3 {sys.argv[0]} <input_file> <output_file>")
-    #     exit(1)
+    sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
 
-    # input_file = sys.argv[1]
-    # output_file = sys.argv[2]
+    with open(output_file, "w") as file:
+        for i in range(100):
+            regularity,A,B = sorted_comparisons[i]
+            file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
 
-    # comparisons = []
-    # preprocess_data(input_file)
-
-    # for i in range(9):
-    #     for j in range(9):
-    #         if (i == j):
-    #             pass
-    #         else:
-    #             # Eventually these will be a list of indices, not just single instances
-    #             A = [i]
-    #             B = [j]
-    #             regularity = regularity_extraction(A, B)
-    #             comparisons.append((regularity,A,B))
-
-    # sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
-
-    # with open(output_file, "w") as file:
-    #     for i in range(10):
-    #         regularity,A,B = sorted_comparisons[i]
-    #         file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
-
-    # pprint.pprint(compression_result)   
+    #pprint.pprint(sorted_comparisons)
 
 if __name__ == "__main__":
     main()
