@@ -7,6 +7,10 @@ import pprint
 import sys
 
 prep_data = []
+
+inst_i = ['A', 'A1', 'A2', 'B']
+inst_o = ['Y']
+
 ckt_input = {'Global': []}
 ckt_output = {'Global': []}
 
@@ -57,6 +61,11 @@ def preprocess_data(file_i):
     #print("\n".join(prep_data))
     #breakpoint()
 
+
+def get_port_io(port_i):
+    return 0
+
+
 def get_subckt(indices):
     lineA = ""
     for i in indices:
@@ -76,16 +85,19 @@ def regularity_extraction(A, B):
 
     return len(cmprAB)/(len(cmprA) + len(cmprB))   
 
+
 def conn_map(str_i): #Doesn't work if run on entire netlist, only should be run on instances, NOT wires
+    
+    if (str_i.startswith("wire")):
+        return (0, 0)
     pin_o =  []
     conn_o = []
     start_ind = str_i.index("(") # Starting Index is first instance of (
-
     str_temp = ""
     for i in range(start_ind, len(str_i)):
         if (str_i[i] == "."):
             j = i
-            while(str_i[j] != "("):
+            while(str_i[j] != "(") and (str_i[j] != ")"):
                 str_temp += str_i[j]
                 j += 1
             pin_o.append(str_temp[1::])
@@ -100,6 +112,12 @@ def conn_map(str_i): #Doesn't work if run on entire netlist, only should be run 
     
     return(pin_o, conn_o)
             
+
+
+
+# -------------------------------------------------------------------------------- #
+
+
 
 def main():
     if (len(sys.argv) != 3):
@@ -122,7 +140,6 @@ def main():
 
     for i in range(len(prep_data)):
         print(conn_map(prep_data[i]))
-
 
     # with open(output_file, "w") as file:
     #     for i in range(10):
