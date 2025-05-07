@@ -61,40 +61,25 @@ def regularity_extraction(A, B):
     return len(cmprAB)/(len(cmprA) + len(cmprB))
 
 
-def indice_regularity_extraction(A, B): #A, B are lists with index pairs [start1, end1, start2, end2, ... ] Indexes prep_data which has instances
-    lineA = ""
-    lineB = ""
-
-    a_i = 0
-    a_j = 0
-    while(a_i != len(A)):
-        a_j = A[a_i]
-
-        while(a_j != (A[a_i + 1] + 1)):
-            lineA += prep_data[a_j - 1] + "\n"
-            a_j += 1
-        a_i += 2
+# For some vector V, get the complete compression ratio
+def compression_anealling(V):
+    subgraph = [[] for _ in range(max(V) + 1)]
+    for i in range(len(V)):
+        subgraph[V[i]].append(i)
     
-    print("Final lineA: \n", lineA)
+    # return(subgraph)
 
-    b_i = 0
-    b_j = 0
-    while(b_i != len(B)):
-        b_j = B[b_i]
-        while(b_j != (B[b_i + 1] + 1)):
-            lineB += prep_data[b_j - 1] + "\n"
-            b_j += 1
-        b_i += 2
-    
-    print("\nFinal lineB: \n", lineB)
-    cmprA = zlib.compress(lineA.encode())
-    cmprB = zlib.compress(lineB.encode())
+    compression_eq = 0
+    for i in range(len(subgraph)):
+        for j in range(len(subgraph)):
+            if (i == j):
+                continue
+            else:
+                # print("Comparison of\n", get_subckt(subgraph[i]), "\nand\n\n", get_subckt(subgraph[j]))
+                # print("\nResult: ", regularity_extraction(subgraph[i], subgraph[j]), "\n")
+                compression_eq += regularity_extraction(subgraph[i], subgraph[j])
 
-    lineAB = lineA + lineB
-    cmprAB = zlib.compress(lineAB.encode())
-
-    return len(cmprAB)/(len(cmprA) + len(cmprB))
-
+    return compression_eq
     
 
 
@@ -108,29 +93,25 @@ def main():
 
     comparisons = []
     preprocess_data(input_file)
-    print(prep_data)
-    #regularity = indice_regularity_extraction([1, 2, 3, 5], [7, 9])
 
-    #comparisons.append((regularity,[1, 2, 3, 5], [7, 9]))
+    print(compression_anealling([0, 0, 1, 1, 1, 2, 2, 0, 3, 1]))
 
-    #print(comparisons)
+    # for i in range(len(prep_data)):
+    #     for j in range(len(prep_data)):
+    #         if i==j: 
+    #             continue
+    #         # Eventually these will be a list of indices, not just single instances
+    #         A = [i]
+    #         B = [j]
+    #         regularity = regularity_extraction(A, B)
+    #         comparisons.append((regularity,A,B))
 
-    for i in range(len(prep_data)):
-        for j in range(len(prep_data)):
-            if i==j: 
-                continue
-            # Eventually these will be a list of indices, not just single instances
-            A = [i]
-            B = [j]
-            regularity = regularity_extraction(A, B)
-            comparisons.append((regularity,A,B))
+    # sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
 
-    sorted_comparisons = sorted(comparisons, key=lambda x: x[0])
-
-    with open(output_file, "w") as file:
-        for i in range(100):
-            regularity,A,B = sorted_comparisons[i]
-            file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
+    # with open(output_file, "w") as file:
+    #     for i in range(100):
+    #         regularity,A,B = sorted_comparisons[i]
+    #         file.write(f"{i}\nComparison of :\n{get_subckt(A)} and\n{get_subckt(B)} {regularity}\n\n" )
 
     #pprint.pprint(sorted_comparisons)
 
