@@ -2,6 +2,7 @@ import zlib
 import binascii
 import pprint
 import sys
+import random
 
 prep_data = []
 compression_result = {}
@@ -62,12 +63,13 @@ def regularity_extraction(A, B):
 
 
 # For some vector V, get the complete compression ratio
-def compression_anealling(V):
+def compression_annealing(V):
     subgraph = [[] for _ in range(max(V) + 1)]
+    anti_onehot = len(subgraph) == len(prep_data)
     for i in range(len(V)):
         subgraph[V[i]].append(i)
-    
-    # return(subgraph)
+
+    # print("Subgraphs: ", subgraph, "\n")
 
     compression_eq = 0
     for i in range(len(subgraph)):
@@ -77,11 +79,60 @@ def compression_anealling(V):
             else:
                 # print("Comparison of\n", get_subckt(subgraph[i]), "\nand\n\n", get_subckt(subgraph[j]))
                 # print("\nResult: ", regularity_extraction(subgraph[i], subgraph[j]), "\n")
-                compression_eq += regularity_extraction(subgraph[i], subgraph[j])
+                if (anti_onehot): # Or some other limitation to the compression
+                    compression_eq += 0
+                else:
+                    compression_eq += regularity_extraction(subgraph[i], subgraph[j])
 
     return compression_eq
     
+def compression_comparison(U, V):
+    cmpr_U = compression_annealing(U)
+    cmpr_V = compression_annealing(V)
 
+    if (cmpr_U > cmpr_V):
+        return U
+    else:
+        return V
+
+def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters): #end_temp might be redundant
+    current_V = init_V
+    current_cmpr = compression_annealing(init_V)
+
+    best_V = current_V
+    best_cmpr = current_cmpr
+
+    temp = start_temp
+
+    iters = 0
+    while (temp > end_temp) and (iters < max_iters):
+        neighbor_V = simulated_change(current_V)
+        neighbor_cmpr = compression_annealing(current_V)
+
+        # Unsure on Accepting Condition for Now
+        if (random.randint(0, 1) == 1):
+            current_V = neighbor_V
+            current_cmpr = neighbor_cmpr
+
+        if (current_cmpr > best_cmpr):
+            best_V = current_V
+            best_cmpr = current_cmpr
+        
+
+        temp *= cooling_rate
+        iters += 1
+    
+    return (best_V, best_cmpr)
+
+def simulated_change(V):
+    idx = random.randint(0, len(V)-1)
+    change = random.randint(-1, 1)
+
+    copy_V = V[:]
+
+    copy_V[idx] += change
+
+    return copy_V
 
 def main():
 
@@ -94,7 +145,12 @@ def main():
     comparisons = []
     preprocess_data(input_file)
 
-    print(compression_anealling([0, 0, 1, 1, 1, 2, 2, 0, 3, 1]))
+    # print(compression_annealing([0, 0, 1, 1, 1, 2, 2, 0, 3, 1]))
+
+    pprint.pprint(prep_data)
+
+    print(simulated_annealing([0, 0, 1, 1, 2, 3, 1, 1, 0, 4, 4, 4, 3, 2, 1, 2, 3, 3, 3, 2], 0.99, 100, 1, 1000))
+
 
     # for i in range(len(prep_data)):
     #     for j in range(len(prep_data)):

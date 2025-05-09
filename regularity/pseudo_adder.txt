@@ -1,0 +1,29 @@
+input   I1, I2, I3, I4, J1, J2, J3, J4;
+
+output O1, O2, O3, O4;
+
+wire N1, N2, N3, N4, N5, N6, N7, N8, N9, N10, N11, N12;
+
+xor G1 (N1, I1, J1);
+xor G2 (O1, N1, 0);
+and G3 (N2, N1, 0);
+and G4 (N3, I1, J1);
+or  G5 (N4, N2, N3);
+
+xor G6 (N5, I2, J2);
+xor G7 (O2, N5, N4);
+and G8 (N6, N5, N4);
+and G9 (N7, I2, J2);
+or  G10 (N8, N6, N7);
+
+xor G11 (N9, I3, J3);
+xor G12 (O3, N9, N8);
+and G13 (N10, N9, N8);
+and G14 (N11, I3, J3);
+or  G15 (N12, N10, N11);
+
+xor G16 (N13, I4, J4);
+xor G17 (O4, N13, N12);
+and G18 (N14, N13, N12);
+and G19 (N15, I4, J4);
+or  G20 (N16, N14, N15);
