@@ -4,6 +4,7 @@ import pprint
 import sys
 import random
 import math
+import matplotlib.pyplot as plt
 
 prep_data = []
 compression_result = {}
@@ -54,10 +55,25 @@ def regularity_extraction(A, B):
     lineA = get_subckt(A)
     lineB = get_subckt(B)
 
+    max_size = 0
+
+    size_penalty = 0
+    template_penalty = 0
+
     if len(A) > len(B):
         size_penalty = len(B) / len(A)
+        max_size = len(A)
     else:
         size_penalty = len(A) / len(B)
+        max_size = len(B)
+    
+    if (max_size <= 2) or (max_size >= 10):
+        template_penalty = 0.1
+        # print("Penalty True\n")
+    else:
+        template_penalty = 1
+        # print("Penalty False\n")
+
  
     cmprA = zlib.compress(lineA.encode())
     cmprB = zlib.compress(lineB.encode())
@@ -65,31 +81,30 @@ def regularity_extraction(A, B):
     lineAB = lineA + lineB
     cmprAB = zlib.compress(lineAB.encode())
 
-    return size_penalty * (len(cmprAB)/(len(cmprA) + len(cmprB)))
+    return size_penalty * (len(cmprAB)/(len(cmprA) + len(cmprB))) * template_penalty
 
 
 # For some vector V, get the complete compression ratio
 def compression_annealing(V):
+    # print("Current V: ", V, "\n")
     subgraph = [[] for _ in range(max(V) + 1)]
-    anti_onehot = len(subgraph) == len(prep_data)
     for i in range(len(V)):
         if (V[i]) == 0:
             continue
         else:
             subgraph[V[i]].append(i)
 
-    # print("Subgraphs: ", subgraph, "\n")
+    # print(subgraph)
 
     compression_eq = 100
     for i in range(1, len(subgraph)):
         for j in range(i+1, len(subgraph)):
-            # print("Comparison of\n", get_subckt(subgraph[i]), "\nand\n\n", get_subckt(subgraph[j]))
-            # print("\nResult: ", regularity_extraction(subgraph[i], subgraph[j]), "\n")
-            if (anti_onehot): # Or some other limitation to the compression
-                compression_eq += 0
-            elif (len(subgraph[i]) == 0) or (len(subgraph[j]) == 0):
+            # print("Iteration: ", str(i) + ", " + str(j), "\n")
+            if (len(subgraph[i]) == 0) or (len(subgraph[j]) == 0):
+                # print("Subgraph Empty\n")
                 continue
             else:
+                # print("Running Regularity Extraction")
                 compression_eq *= regularity_extraction(subgraph[i], subgraph[j])
 
     return (compression_eq / len(subgraph))
@@ -103,7 +118,7 @@ def compression_comparison(U, V):
     else:
         return V
 
-def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters): #end_temp might be redundant
+def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters, cutoff): #end_temp might be redundant
     current_V = init_V
     current_cmpr = compression_annealing(init_V)
 
@@ -114,8 +129,8 @@ def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters): 
 
     iters = 0
     while (temp > end_temp) and (iters < max_iters):
-        neighbor_V = simulated_change(current_V)
-        neighbor_cmpr = compression_annealing(current_V)
+        neighbor_V = simulated_change(current_V, cutoff)
+        neighbor_cmpr = compression_annealing(neighbor_V)
 
         delta_energy = neighbor_cmpr - current_cmpr
 
@@ -132,12 +147,13 @@ def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters): 
         iters += 1
     
     return (best_V, best_cmpr)
+    # return best_cmpr
 
-def simulated_change(V):
+def simulated_change(V, cutoff):
     upp_b = len(V)
     low_b = 0
 
-    cutoff = 75
+    # cutoff = 75
 
     idx = random.randint(0, upp_b - 1)
     change = random.randint(-1, 1)
@@ -148,36 +164,52 @@ def simulated_change(V):
 
     if (copy_V[idx] == upp_b):
         if (chance <= cutoff):
-            print("Swap!")
+            # print("Swap!")
             intermediate = copy_V[idx]
             swap_idx = random.randint(0, upp_b - 1)
             copy_V[idx] = copy_V[swap_idx]
             copy_V[swap_idx] = intermediate
         else:
-            print("Change!")
+            # print("Change!")
             copy_V[idx] -= 1
     elif (copy_V[idx] == low_b):
         if (chance <= cutoff):
-            print("Swap!")
+            # print("Swap!")
             intermediate = copy_V[idx]
             swap_idx = random.randint(0, upp_b - 1)
             copy_V[idx] = copy_V[swap_idx]
             copy_V[swap_idx] = intermediate
         else:
-            print("Change!")
+            # print("Change!")
             copy_V[idx] += 1
     else:
         if (chance <= cutoff):
-            print("Swap!")
+            # print("Swap!")
             intermediate = copy_V[idx]
             swap_idx = random.randint(0, upp_b - 1)
             copy_V[idx] = copy_V[swap_idx]
             copy_V[swap_idx] = intermediate
         else:
-            print("Change!")
+            # print("Change!")
             copy_V[idx] += change
 
     return copy_V
+
+def probability_calc(probability, trials, out_f):
+    prob_result = [[] for _ in range(len(probability))]
+    for i in range(len(probability)):
+        for _ in range(trials):
+            prob_result[i] += simulated_annealing([0, 0, 1, 1, 2, 3, 1, 1, 0, 4, 4, 4, 3, 2, 1, 2, 3, 3, 3, 2], 0.999, 10000, 1, 100000, probability[i])
+        
+        prob_result[i][1] = (prob_result[i][1]) / trials
+    
+    with open(out_f, "w") as file:
+        count = 0
+        for i in prob_result:
+            file.write("Probability: " + str(probability[count]) + "\n" + "Compression: " + str(i[1]) + "\n" + "V: " + str(i[0]) + "\n\n")
+            count += 1
+    
+    
 
 def main():
 
@@ -190,20 +222,31 @@ def main():
     comparisons = []
     preprocess_data(input_file)
 
-    # print(simulated_change([0, 0, 1, 1, 2, 3, 3, 1]))
+    probability = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    trials = 1
+
+    # random.seed(42)
+    # probability_calc(probability, trials, output_file)
+    
 
     # print("Garbage:")
-    # print(compression_annealing([0, 0, 1, 1, 2, 3, 1, 1, 0, 4, 4, 4, 3, 2, 1, 2, 3, 3, 3, 2]))
+    # print(compression_annealing([2, 7, 8, 4, 11, 6, 4, 10, 3, 9, 6, 6, 5, 20, 3, 3, 10, 8, 12, 10]))
     # print("\n")
+
+    print("Group each Ripple Adder:")
+    print(compression_annealing([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]))
+    print("\n")
+
+    print("Group By Output:")
+    print(compression_annealing([1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8]))
+
+
     # print("Group each Ripple Adder:")
-    # print(compression_annealing([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]))
+    # print(simulated_annealing([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4], 0.99, 10000, 1, 10000, 0.8))
     # print("\n")
     # print("Group By Output:")
-    # print(compression_annealing([1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8]))
+    # print(simulated_annealing([1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8], 0.99, 10000, 1, 10000, 0.8))
 
-
-
-    # print(simulated_annealing([0, 0, 1, 1, 2, 3, 1, 1, 0, 4, 4, 4, 3, 2, 1, 2, 3, 3, 3, 2], 0.99, 10000, 1, 10000))
 
 if __name__ == "__main__":
     main()
