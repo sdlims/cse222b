@@ -55,24 +55,26 @@ def regularity_extraction(A, B):
     lineA = get_subckt(A)
     lineB = get_subckt(B)
 
-    max_size = 0
+    tplt_avg = (len(A) + len(B)) / 2
 
     size_penalty = 0
     template_penalty = 0
 
+    # Punishes Having Different Sized Templates
     if len(A) > len(B):
-        size_penalty = len(B) / len(A)
-        max_size = len(A)
+        size_penalty = len(B) / (len(A) + len(B))
+    elif (len(B) > len(A)):
+        size_penalty = len(A) / (len(A) + len(B))
     else:
-        size_penalty = len(A) / len(B)
-        max_size = len(B)
+        size_penalty = 1
     
-    if (max_size <= 2) or (max_size >= 10):
-        template_penalty = 0.1
-        # print("Penalty True\n")
+    # Punishes Based on Template Size
+    if (tplt_avg <= 2) or (tplt_avg >= 10):
+        template_penalty = 0.5
+    elif (tplt_avg >= 3) and (tplt_avg <= 6):
+        template_penalty = 1.3
     else:
         template_penalty = 1
-        # print("Penalty False\n")
 
  
     cmprA = zlib.compress(lineA.encode())
@@ -81,7 +83,7 @@ def regularity_extraction(A, B):
     lineAB = lineA + lineB
     cmprAB = zlib.compress(lineAB.encode())
 
-    return size_penalty * (len(cmprAB)/(len(cmprA) + len(cmprB))) * template_penalty
+    return size_penalty * (len(cmprAB)/(len(cmprA) + len(cmprB))) 
 
 
 # For some vector V, get the complete compression ratio
@@ -99,12 +101,9 @@ def compression_annealing(V):
     compression_eq = 100
     for i in range(1, len(subgraph)):
         for j in range(i+1, len(subgraph)):
-            # print("Iteration: ", str(i) + ", " + str(j), "\n")
             if (len(subgraph[i]) == 0) or (len(subgraph[j]) == 0):
-                # print("Subgraph Empty\n")
                 continue
             else:
-                # print("Running Regularity Extraction")
                 compression_eq *= regularity_extraction(subgraph[i], subgraph[j])
 
     return (compression_eq / len(subgraph))
@@ -225,20 +224,19 @@ def main():
     probability = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
     trials = 1
 
-    # random.seed(42)
-    # probability_calc(probability, trials, output_file)
+    probability_calc(probability, trials, output_file)
     
 
     # print("Garbage:")
-    # print(compression_annealing([2, 7, 8, 4, 11, 6, 4, 10, 3, 9, 6, 6, 5, 20, 3, 3, 10, 8, 12, 10]))
+    # print(compression_annealing([0, 0, 1, 2, 2, 3, 1, 1, 1, 3, 2, 3, 2, 1, 0, 3, 2, 3, 2, 2]))
     # print("\n")
 
-    print("Group each Ripple Adder:")
-    print(compression_annealing([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]))
-    print("\n")
+    # print("Group each Ripple Adder:")
+    # print(compression_annealing([1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]))
+    # print("\n")
 
-    print("Group By Output:")
-    print(compression_annealing([1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8]))
+    # print("Group By Output:")
+    # print(compression_annealing([1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 6, 6, 6, 7, 7, 8, 8, 8]))
 
 
     # print("Group each Ripple Adder:")
