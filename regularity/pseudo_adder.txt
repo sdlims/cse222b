@@ -8,7 +8,7 @@ xor G1 (N1, I1, J1);
 xor G2 (O1, N1, 0);
 and G3 (N2, N1, 0);
 and G4 (N3, I1, J1);
-or  G5 (N4, N2, N3);
+or  G10 (N4, N2, N3);
 
 xor G6 (N5, I2, J2);
 xor G7 (O2, N5, N4);
