@@ -40,10 +40,7 @@ def simulated_change(V, cutoff):
     idx = random.randint(0, upp_b - 1)
 
     chance = random.randint(1, 100)
-    if (chance % 2 == 0):
-        change = -1
-    else:
-        change = 1
+    change = random.choice([-1, 1])
 
     copy_V = V[:]
 

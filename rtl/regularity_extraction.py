@@ -1,7 +1,10 @@
 import bz2
+import pprint
 
 prep_data = []
 comp_data = []
+
+scalar = 1.345
 
 def preprocess_data(file_i):
     init_data = []
@@ -70,8 +73,13 @@ def gate_re(gateA, gateB):
         i = 0
         j = 0
         while not ((i >= len(gateA)) and (j >= len(gateB))):
-            if (gateA[i] != gateB[j]):
+            if (i == len(gateA)):
                 re -= (1 / max(len(gateA), len(gateB)))
+            elif (j == len(gateB)):
+                re -= (1 / max(len(gateA), len(gateB)))
+            elif (gateA[i] != gateB[j]):
+                re -= (1 / max(len(gateA), len(gateB)))
+            
             if (i != len(gateA)):
                 i += 1
             if (j != len(gateB)):
@@ -85,6 +93,8 @@ def regularity_extraction(A, B):
     gateA = get_subgate(A)
     gateB = get_subgate(B)
 
+    # pprint.pprint(lineA)
+
     cmpr_gate = gate_re(gateA, gateB)
 
     cmprA = bz2.compress(lineA.encode())
@@ -97,4 +107,4 @@ def regularity_extraction(A, B):
 
     cmpr_size = size_re(len(A), len(B))
 
-    return cmpr_main * cmpr_size * cmpr_gate
+    return cmpr_main * cmpr_size * cmpr_gate * scalar # Scalar normalizes answers [0:1]
