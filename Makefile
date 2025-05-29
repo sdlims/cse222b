@@ -1,4 +1,5 @@
-FILE = pseudo_adder.txt
+# FILE = pseudo_adder.txt
+FILE ?= pseudo_4x4_mult.txt
 
 .PHONY: test_cf test_re test_sa
 
