@@ -53,7 +53,7 @@ def get_subgate(indices):
     comp = []
     for i in range(len(indices)):
         comp.append(comp_data[indices[i]])
-    comp.sort() # NEW LINE
+    # comp.sort() # NEW LINE
     return comp
 
 
