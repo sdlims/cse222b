@@ -4,7 +4,7 @@ import pprint
 prep_data = []
 comp_data = []
 
-scalar = 1.345
+scalar = 1.5
 
 def preprocess_data(file_i):
     init_data = []
@@ -74,10 +74,9 @@ def get_nets(indices):
 
         max_len = max(net_data, key=len)
         norm_net_data = [item.zfill(len(max_len)) for item in net_data]
-        nets.append(norm_net_data)
+        nets.extend(norm_net_data)
     
     return nets
-    # print(nets)
 
 
 
@@ -125,6 +124,7 @@ def regularity_extraction(A, B):
     
     netAstr = ''.join(str(i) for i in netA)
     netBstr = ''.join(str(i) for i in netB)
+
 
     cmprAnet = bz2.compress(netAstr.encode())
     cmprBnet = bz2.compress(netBstr.encode())
