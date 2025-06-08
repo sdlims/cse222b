@@ -1,0 +1,14 @@
+and     AND1 (I1, I2, N1);
+adder   ADDER1 (N1, I3, 0, N2, N3);
+nor     NOR1 (N2, N3, N4);
+nand    NAND1 (N2, N3, N5);
+
+and     AND2 (N2, N4, N6);
+adder   ADDER2 (N6, N3, N5, N7, N8);
+nor     NOR2 (N7, N8, N9);
+nand    NAND2 (N7, N8, N10);
+
+and     AND2 (N7, N9, N11);
+adder   ADDER2 (N11, N8, N10, N12, N13);
+nor     NOR2 (N12, N13, O1);
+nand    NAND2 (N12, N13, O2);

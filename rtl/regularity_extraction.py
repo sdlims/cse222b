@@ -93,8 +93,6 @@ def regularity_extraction(A, B):
     gateA = get_subgate(A)
     gateB = get_subgate(B)
 
-    # pprint.pprint(lineA)
-
     cmpr_gate = gate_re(gateA, gateB)
 
     cmprA = bz2.compress(lineA.encode())
@@ -103,8 +101,24 @@ def regularity_extraction(A, B):
     lineAB = lineA + lineB
     cmprAB = bz2.compress(lineAB.encode())
 
+    # print("\nBefore Compression: ")
+    # print("Line A: ", lineA)
+    # print("Line B: ", lineB)
+    # print("Line AB: ", lineAB, "\n")
+
+    # print("Len of Line A: ", len(lineA))
+    # print("Len of Line B: ", len(lineB))
+    # print("Len of Line AB: ", len(lineAB), "\n")
+
+    # print("cmprA: ", len(cmprA))
+    # print("cmprB: ", len(cmprB))
+    # print("cmprAB: ", len(cmprAB), "\n\n")
+
+
     cmpr_main = (len(cmprAB) / (len(cmprA) + len(cmprB)))
+    # cmpr_main = len(cmprAB) / len(lineAB.encode())
 
-    cmpr_size = size_re(len(A), len(B))
+    # cmpr_size = size_re(len(A), len(B))
 
-    return cmpr_main * cmpr_size * cmpr_gate * scalar # Scalar normalizes answers [0:1]
+    # return cmpr_main * cmpr_gate * scalar # Scalar normalizes answers [0:1] cmpr_size *
+    return cmpr_main

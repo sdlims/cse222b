@@ -1,0 +1,17 @@
+xor XOR1 (I1, I2, N1);
+inv INV1 (N1, N2);
+and AND1 (I2, N2, N3);
+and AND2 (N2, N3, N4);
+or  OR1  (N2, N3, N5);
+
+xor XOR2 (N4, N5, N6);
+inv INV2 (N6, N7);
+and AND3 (N5, N7, N8);
+and AND4 (N7, N8, N9);
+or  OR2  (N7, N8, N10);
+
+xor XOR3 (N9, N10, N11);
+inv INV3 (N11, N12);
+and AND5 (N10, N12, N13);
+or  OR3  (N12, N13, O1);
+or  OR4  (N12, N13, O2);

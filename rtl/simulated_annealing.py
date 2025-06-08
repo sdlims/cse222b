@@ -19,7 +19,7 @@ def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters, c
         neighbor_cmpr = cf.cost_func(neighbor_V)
 
         delta_energy = neighbor_cmpr - current_cmpr
-        if (delta_energy > 0) or (random.random() < math.exp(delta_energy / temp)):
+        if (delta_energy < 0) or (random.random() < math.exp(-delta_energy / temp)):
             current_V = neighbor_V
             current_cmpr = neighbor_cmpr
 

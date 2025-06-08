@@ -1,0 +1,7 @@
+and AND1 (I1, I2, N1);
+or OR1 (I1, N1, N2);
+or OR2 (N1, N2, O1);
+
+and AND2 (I1, I2, N3);
+or OR3 (I1, N3, N4);
+or OR4 (N3, N4, O2);

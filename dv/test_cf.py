@@ -3,6 +3,9 @@
 import sys
 import random
 import pprint
+
+sys.path.append(r'/home/sdli/regularity_extraction/rtl/')
+
 import regularity_extraction as re
 import cost_func as cf
 
