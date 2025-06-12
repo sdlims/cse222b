@@ -59,11 +59,12 @@ def get_subgate(indices):
 def size_re(lenA, lenB):
     if (lenA != lenB):
         if (lenA > lenB):
-            return (lenB / lenA)
-        else:
             return (lenA / lenB)
+        else:
+            return (lenB / lenA)
     else:
         return 1
+
 
 def gate_re(gateA, gateB):
     if (gateA == gateB):
@@ -72,13 +73,13 @@ def gate_re(gateA, gateB):
         re = 1.00
         i = 0
         j = 0
-        while not ((i >= len(gateA)) and (j >= len(gateB))):
+        while not ((i == len(gateA)) and (j == len(gateB))):
             if (i == len(gateA)):
-                re -= (1 / max(len(gateA), len(gateB)))
+                re += (1 / max(len(gateA), len(gateB)))
             elif (j == len(gateB)):
-                re -= (1 / max(len(gateA), len(gateB)))
+                re += (1 / max(len(gateA), len(gateB)))
             elif (gateA[i] != gateB[j]):
-                re -= (1 / max(len(gateA), len(gateB)))
+                re += (1 / max(len(gateA), len(gateB)))
             
             if (i != len(gateA)):
                 i += 1
@@ -114,11 +115,10 @@ def regularity_extraction(A, B):
     # print("cmprB: ", len(cmprB))
     # print("cmprAB: ", len(cmprAB), "\n\n")
 
-
     cmpr_main = (len(cmprAB) / (len(cmprA) + len(cmprB)))
-    # cmpr_main = len(cmprAB) / len(lineAB.encode())
+    # cmpr_main = len(cmprAB)/len(lineAB)
 
-    # cmpr_size = size_re(len(A), len(B))
+    cmpr_size = size_re(len(A), len(B))
 
-    # return cmpr_main * cmpr_gate * scalar # Scalar normalizes answers [0:1] cmpr_size *
-    return cmpr_main
+    return (cmpr_main * cmpr_size * cmpr_gate) # Scalar normalizes answers [0:1] cmpr_size *
+    # return cmpr_main

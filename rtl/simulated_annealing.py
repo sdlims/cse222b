@@ -19,7 +19,12 @@ def simulated_annealing(init_V, cooling_rate, start_temp, end_temp, max_iters, c
         neighbor_cmpr = cf.cost_func(neighbor_V)
 
         delta_energy = neighbor_cmpr - current_cmpr
-        if (delta_energy < 0) or (random.random() < math.exp(-delta_energy / temp)):
+        cmpr = 0
+        try:
+            cmpr = math.exp(abs(delta_energy) / temp)
+        except OverflowError:
+            cmpr = float('inf') if cmpr > 0 else 0.0
+        if (delta_energy < 0) or (random.random() < cmpr):
             current_V = neighbor_V
             current_cmpr = neighbor_cmpr
 
@@ -46,7 +51,7 @@ def simulated_change(V, cutoff):
 
     cutoff = cutoff * 100
 
-    if (copy_V[idx] >= (upp_b//2)):
+    if (copy_V[idx] >= (upp_b)):
         if (chance <= cutoff):
             swap_idx = random.randint(0, len(V) - 1)
             copy_V[idx], copy_V[swap_idx] = copy_V[swap_idx], copy_V[idx]
