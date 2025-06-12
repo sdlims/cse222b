@@ -22,26 +22,28 @@ def main():
     V     = [0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 6, 4, 1, 1, 2, 2]
     opt_V = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]
 
-    trials = 3
-    probability = [0.6, 0.625, 0.65]
+    trials = 5
+    probability = np.arange(0.5, 0.75, 0.025)
     prob_result = []
 
-    # for i in probability:
-    #     result = 0
-    #     for _ in range(trials):
-    #         result += sa.simulated_annealing(V, 0.998, 150, 0.001, 50000, i)[1]
-    #     prob_result.append(result / trials)
+    for i in probability:
+        result = 0
+        for _ in range(trials):
+            result += sa.simulated_annealing(V, 0.998, 150, 0.001, 50000, i)[1]
+        prob_result.append(result / trials)
     
-    # plt.xlabel("Probability")
-    # plt.ylabel("Sim Annealing Result")
-    # plt.xticks(probability)
-    # plt.scatter(probability, prob_result, s = None, c = "r", marker = "D")
+    plt.xlabel("Probability")
+    plt.ylabel("Sim Annealing Result")
+    plt.xticks(probability)
+    plt.scatter(probability, prob_result, s = None, c = "r", marker = "D")
 
-    result = sa.simulated_annealing(V, 0.998, 150, 0.001, 75000, 0.625)
-    print("Resulting V          : ", result[0])
-    print("Regularity Extraction: ", result[1])
+    # result = sa.simulated_annealing(V, 0.9998, 100, 0.001, 50000, 0.625)
+    # print("Resulting V          : ", result[0])
+    # print("Regularity Extraction: ", result[1])
 
-    print(cf.cost_func(opt_V))
+    # print("Optimal RE: ", cf.cost_func(opt_V))
+
+
     # result = sa.simulated_annealing(opt_V, 0.998, 150, 0.001, 75000, 0.625)
     # print("Resulting V          : ", result[0])
     # print("Regularity Extraction: ", result[1])
